@@ -1,0 +1,15 @@
+{ "id": "pokitcontroller",
+  "name": "Pokit Multimeters",
+  "shortName":"Pokit",
+  "version":"0.01",
+  "description": "Connect to pokit devices and control them on your wrist!",
+  "icon": "app.png",
+  "tags": "bluetooth,tool,pokit",
+  "screenshots" : [ { "url":"screenshot.png" } ],
+  "supports" : ["BANGLEJS","BANGLEJS2"],
+  "readme": "README.md",
+  "storage": [
+    {"name":"pokitcontroller.app.js","url":"app.js"},
+    {"name":"pokitcontroller.img","url":"app-icon.js","evaluate":true}
+  ]
+}
