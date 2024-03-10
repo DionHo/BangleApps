@@ -12,33 +12,98 @@ var MMModeTitle = {
 
 var MMModeUnit = {
   0:"[]",
-  1:"V", 5:"Ω",
+  1:"V", 5:"Ohm",
   2:"V", 6:"",
   3:"A", 7:"",
   4:"A", 8:"°C"
 };
 
+var DigitsForMode = {
+  0: 0,
+  1: 3, 5: 0,
+  2: 3, 6: 2,
+  3: 3, 7: 2,
+  4: 3, 8: 2
+};
+
+var ThemeColor = {
+  fg: g.theme.fg,
+  bg: g.theme.bg,
+  fg2: g.theme.fg2,
+  bg2: g.theme.bg2,
+};
+
 var gatt;
 var mmservice;
+var display_mode = "measure";
 
+
+function showModeMenu() {
+  display_mode = "menu";
+  menu = {
+    "": { "title": "Mode Select" },
+  };
+  Object.keys(MMModeTitle).forEach((mode)=>{
+    menu[MMModeTitle[mode]] = () => {
+      E.showMenu();
+      setMMMode(mode);
+      showMesurements();
+    };
+  });
+  menu["< Back"] =  () => setMMMode(0).then((response) => load());
+  setMMMode(0).then(function(response){
+    g.reset().clearRect(Bangle.appRect);
+    E.showMenu(menu);
+  });
+}
+
+function showMesurements() {
+  display_mode = "measure";
+  Bangle.setUI({
+    mode : "custom",
+    back : function() {
+      setMMMode(0).then((response) => load());
+    },
+    swipe : (LR,_) => {
+      if (LR == 1) { // swipe right
+        showModeMenu();
+      }
+    }
+  });
+}
 
 function decodeMMAndShow(d) {
-//  var status = d.getUint8(0);
-  var value = d.getFloat32(1,true);
-  var mode = d.getUint8(5);
-  var value_str = value.toFixed(4);
+  if(display_mode == "measure"){
+//    var status = d.getUint8(0);
+    var value = d.getFloat32(1,true);
+    var mode = d.getUint8(5);
+    var value_str = value.toFixed(DigitsForMode[mode]);
 
-  var R = Bangle.appRect;
-  g.reset().clearRect(R);
-  g.setFont("12x20").setFontAlign(-1,-1).drawString(MMModeTitle[mode], R.x, R.y);
-  g.setFont("12x20").setFontAlign(1,1).drawString(MMModeUnit[mode], R.x+R.w-1, R.y+R.h-1);
-  var fontSize = 80;
-  g.setFont("Vector",fontSize).setFontAlign(0,0);
-  while (g.stringWidth(value_str) > R.w-20) {
-    fontSize -= 2;
-    g.setFont("Vector", fontSize);
+    // Continuity 'special effects'
+    if(mode==7){
+      if(value<1000.0){
+        VIBRATE.write(1);
+        g.setTheme({bg:ThemeColor.fg,
+                    fg:ThemeColor.bg,});
+      } else {
+        VIBRATE.write(0);
+        g.setTheme({bg:ThemeColor.bg,
+                    fg:ThemeColor.fg,});
+      }
+    }
+    
+    var R = Bangle.appRect;
+    g.reset().clearRect(R);
+    g.setFont("12x20").setFontAlign(-1,-1).drawString(MMModeTitle[mode], R.x, R.y);
+    g.setFont("12x20").setFontAlign(1,1).drawString(MMModeUnit[mode], R.x+R.w-1, R.y+R.h-1);
+    var fontSize = 80;
+    g.setFont("Vector",fontSize).setFontAlign(0,0);
+    while (g.stringWidth(value_str) > R.w-20) {
+      fontSize -= 2;
+      g.setFont("Vector", fontSize);
+    }
+    g.drawString(value_str, R.x+R.w/2, R.y+R.h/2);
   }
-  g.drawString(value_str, R.x+R.w/2, R.y+R.h/2);
 }
 
 function setMMMode(mode) {
@@ -72,7 +137,7 @@ function connection_setup() {
   }).then(function (response){
     return mmservice.getCharacteristic(mmservice_measurement_uuid);
   }).then(function(c) {
-    E.showMessage("register change-value notifier [5/6]");
+    E.showMessage("register measurement notifier [5/6]");
     c.on('characteristicvaluechanged', function(event) {
       var d = event.target.value;
       decodeMMAndShow(d);
@@ -98,6 +163,8 @@ Bangle.loadWidgets();
 Bangle.drawWidgets();
 E.showMessage(/*LANG*/"Connecting...");
 connection_setup();
+
+showMesurements();
 E.on('kill',()=>{
   if (gatt!=undefined) gatt.disconnect();
   console.log("Disconnected pokit!");

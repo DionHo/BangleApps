@@ -4,16 +4,13 @@ Connect to Pokit Meter multimeters and display the measurement values on your wr
 
 ## Usage
 
-The app currently sets the pokit to voltmeter mode and displays th voltage value.
+The app currently sets the pokit to voltmeter mode on startup and shows the measurement value.
 
-The app tries to reconnect to the device periodically in case an error occurs.
-
-To exit the app, long-press the button.
+Swipe right to select another multimeter mode
 
 
 ## Future functionality...
 
-* Enable other multimenter modes
 * Implement DSO and Data Logger services
 * ...
 
