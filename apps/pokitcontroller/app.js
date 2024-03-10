@@ -1,33 +1,40 @@
-var decoded;
 var gatt;
 var mmservice;
 
-function decode(d) {
-  var status = d.getUint8(0);
+var MMModeTitle = {
+  0:"IDLE",
+  1:"DC Voltage", 5:"Resistance",
+  2:"AC Voltage", 6:"Diode",
+  3:"DC Current", 7:"Continuity",
+  4:"AC Current", 8:"Temperature"
+};
+
+var MMModeUnit = {
+  0:"[]",
+  1:"V", 5:"Ω",
+  2:"V", 6:"",
+  3:"A", 7:"",
+  4:"A", 8:"°C"
+};
+
+function decodeAndShowMMMeasurement(d) {
+//  var status = d.getUint8(0);
   var value = d.getFloat32(1,true);
   var mode = d.getUint8(5);
-  updateDisplay(value);
-}
-
-function updateDisplay(value) {
-  var s = value.toFixed(5);
+  var value_str = value.toFixed(4);
 
   var R = Bangle.appRect;
   g.reset().clearRect(R);
-  g.setFont("12x20").setFontAlign(-1,-1).drawString("voltage", R.x, R.y);
-  g.setFont("12x20").setFontAlign(1,1).drawString("V", R.x+R.w-1, R.y+R.h-1);
+  g.setFont("12x20").setFontAlign(-1,-1).drawString(MMModeTitle[mode], R.x, R.y);
+  g.setFont("12x20").setFontAlign(1,1).drawString(MMModeUnit[mode], R.x+R.w-1, R.y+R.h-1);
   var fontSize = 80;
   g.setFont("Vector",fontSize).setFontAlign(0,0);
-  while (g.stringWidth(s) > R.w-20) {
+  while (g.stringWidth(value_str) > R.w-20) {
     fontSize -= 2;
     g.setFont("Vector", fontSize);
   }
-  g.drawString(s, R.x+R.w/2, R.y+R.h/2);
+  g.drawString(value_str, R.x+R.w/2, R.y+R.h/2);
 }
-
-Bangle.loadWidgets();
-Bangle.drawWidgets();
-E.showMessage(/*LANG*/"Connecting...");
 
 function connection_setup() {
   E.showMessage("Scanning for Pokit Meter...");
@@ -58,7 +65,7 @@ function connection_setup() {
     E.showMessage("register change-value notifier [5/6]");
     c.on('characteristicvaluechanged', function(event) {
       var d = event.target.value;
-      decode(d);
+      decodeAndShowMMMeasurement(d);
     });
     return c.startNotifications();
   }).then(function() {
@@ -67,7 +74,7 @@ function connection_setup() {
     E.showMessage("read first measurement value [6/6]");
     return c.readValue();
   }).then(function(d) {
-    decode(d);
+    decodeAndShowMMMeasurement(d);
   }).then(function (){
     console.log("Done!");
   }).catch(function(e) {
@@ -77,7 +84,9 @@ function connection_setup() {
   });
 }
 
-
+Bangle.loadWidgets();
+Bangle.drawWidgets();
+E.showMessage(/*LANG*/"Connecting...");
 connection_setup();
 E.on('kill',()=>{
   if (gatt!=undefined) gatt.disconnect();
