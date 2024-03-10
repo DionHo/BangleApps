@@ -1,7 +1,7 @@
 { "id": "pokitmeter",
   "name": "Pokit Meter",
   "shortName":"Pokit Meter",
-  "version":"0.01",
+  "version":"0.1.1",
   "description": "Connect to pokit meter devices and control them on your wrist!",
   "icon": "app.png",
   "tags": "bluetooth,tool,pokit,multimeter",
