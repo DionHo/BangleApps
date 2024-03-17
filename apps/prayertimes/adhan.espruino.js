@@ -74,7 +74,7 @@ function Coordinates(latitude, longitude) {
   this.latitude = latitude;
   this.longitude = longitude;
   return this;
-};
+}
 
   var Rounding = {
     Nearest: 'nearest',
