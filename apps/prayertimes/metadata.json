@@ -6,10 +6,8 @@
   "icon": "app.drawio.png",
   "type": "app",
   "tags": "islam,adhan,prayer",
-  "supports": [
-      "BANGLEJS",
-      "BANGLEJS2"
-    ],
+  "supports": ["BANGLEJS","BANGLEJS2"],
+  "readme": "README.md",
   "storage": [
     { "name": "prayertimes.app.js", "url": "app.js"},
     { "name": "prayertimes.img", "url": "icon.js", "evaluate": true},
