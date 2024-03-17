@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prayer Times Calculator</title>
+</head>
+<body>
+
+<h1>Prayer Times Calculator</h1>
+
+<form id="prayerTimesForm">
+    <label for="dateInput">Date:</label>
+    <input type="date" id="dateInput" value="2024-03-17" required><br><br>
+    
+    <label for="latitudeInput">Latitude:</label>
+    <input type="number" id="latitudeInput" min="-90" max="90" step="any" value="52.2892" required><br><br>
+    
+    <label for="longitudeInput">Longitude:</label>
+    <input type="number" id="longitudeInput" min="-180" max="180" step="any" value="10.5552" required><br><br>
+    
+    <label for="timezoneInput">Time Zone:</label>
+    <input type="number" id="timezoneInput" value="1" required><br><br>
+    
+    <button type="submit">Calculate Prayer Times</button>
+</form>
+
+<div id="outputArea"></div>
+
+<script src="./adhan.umd.min.js"></script>
+<script>
+document.getElementById("prayerTimesForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    
+    var date = new Date(document.getElementById("dateInput").value);
+    var latitude = parseFloat(document.getElementById("latitudeInput").value);
+    var longitude = parseFloat(document.getElementById("longitudeInput").value);
+    var timeZone = parseFloat(document.getElementById("timezoneInput").value);
+    
+    const coordinates = new adhan.Coordinates(latitude, longitude);
+    const params = adhan.CalculationMethod.NorthAmerica();
+    var prayerTimes = new adhan.PrayerTimes(coordinates, date, params);
+    
+    var outputArea = document.getElementById("outputArea");
+    outputArea.innerHTML = "<h2>Prayer Times</h2>";
+    outputArea.innerHTML += "<p>Fajr: " + prayerTimes.fajr + "</p>";
+    outputArea.innerHTML += "<p>Sunrise: " + prayerTimes.sunrise + "</p>";
+    outputArea.innerHTML += "<p>Dhuhr: " + prayerTimes.dhuhr + "</p>";
+    outputArea.innerHTML += "<p>Asr: " + prayerTimes.asr + "</p>";
+    outputArea.innerHTML += "<p>Maghrib: " + prayerTimes.maghrib + "</p>";
+    outputArea.innerHTML += "<p>Isha: " + prayerTimes.isha + "</p>";
+    outputArea.innerHTML += "<p>Midnight: " + prayerTimes.midnight + "</p>";
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+    "id": "prayertimes",
+    "name": "Prayer Times",
+    "version": "0.1",
+    "description": "Muslim Prayer Times",
+    "icon": "app-icon.png",
+    "type": "app",
+    "tags": "islam,adhan,prayer",
+    "supports": [
+        "BANGLEJS",
+        "BANGLEJS2"
+      ],
+    "storage": [
+    {
+        "name": "prayertimes.app.js",
+        "url": "app.js"
+    },
+    {
+        "name": "prayertimes.img",
+        "url": "icon.js",
+        "evaluate": true
+    },
+    {
+        "name": "adhan.espruino.js",
+        "url": "adhan.espruino.js"
+    }
+    ]
+}
