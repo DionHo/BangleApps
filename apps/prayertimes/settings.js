@@ -19,8 +19,9 @@
     '': { 'title': 'PT Settings' },
     '< Back': back,
     'Update Location': {
-      value: settings.latitude.toFixed(3)+"|"+settings.longitude.toFixed(3),
+      value: settings.latitude.toFixed(3)+"\n"+settings.longitude.toFixed(3),
       onchange: () => {
+        E.showMessage("Get Location via GPS ...");
         Bangle.setGPSPower(true, APP_NAME);
         Bangle.on('GPS', fix => {
           if ('fix' in fix && fix.fix != 0 && fix.satellites >= 4) {
@@ -28,6 +29,7 @@
             settings.latitude = fix.lat;
             settings.longitude = fix.lon;
             writeSettings();
+            E.showMenu(menu_main);
           }
         });
       },
@@ -47,5 +49,7 @@
     }
   };
 
+  Bangle.loadWidgets();
+  Bangle.drawWidgets();
   E.showMenu(menu_main);
 })
