@@ -1,17 +1,19 @@
 {
   "id": "prayertimes",
   "name": "Prayer Times",
-  "version": "0.2",
+  "version": "0.3",
   "description": "Muslim Prayer Times on your wrist",
   "icon": "app.drawio.png",
   "type": "app",
   "tags": "islam,adhan,prayer",
   "supports": ["BANGLEJS","BANGLEJS2"],
   "readme": "README.md",
+  "dependencies": { "scheduler":"type" },
   "storage": [
     { "name": "prayertimes.app.js", "url": "app.js"},
     { "name": "prayertimes.img", "url": "icon.js", "evaluate": true},
     { "name": "prayertimes.settings.js", "url": "settings.js"},
+    { "name": "prayertimes.boot.js","url":"boot.js"},
     { "name": "adhan.espruino.js", "url": "adhan.espruino.js"}
   ],
   "data": [

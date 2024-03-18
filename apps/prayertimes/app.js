@@ -8,7 +8,8 @@ function loadSettings() {
   settings = Object.assign({
     latitude: parseFloat("52.2647"),
     longitude: parseFloat("10.5237"),
-    calcmethod: "NorthAmerica"
+    calcmethod: "NorthAmerica",
+    adhan: false
   }, require('Storage').readJSON(SETTINGS_FILE, true) || {});
 }
 loadSettings();
@@ -40,3 +41,4 @@ let menu = () => { return {
 Bangle.loadWidgets();
 Bangle.drawWidgets();
 E.showMenu(menu());
+eval(require('Storage').read('prayertimes.boot.js'));
