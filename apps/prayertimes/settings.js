@@ -8,7 +8,8 @@
   let settings = Object.assign({
     latitude: parseFloat("52.2647"),
     longitude: parseFloat("10.5237"),
-    calcmethod: "NorthAmerica"
+    calcmethod: "NorthAmerica",
+    adhan: false
   }, require('Storage').readJSON(SETTINGS_FILE, true) || {});
 
   function writeSettings() {
@@ -40,10 +41,15 @@
       max: Object.keys(adhan.CalculationMethod).length,
       format: v => Object.keys(adhan.CalculationMethod)[v],
       onchange: v => {
-        console.log("Object.keys(adhan.CalculationMethod).length: "+Object.keys(adhan.CalculationMethod).length.toString());
-        console.log(v);
-        console.log(Object.keys(adhan.CalculationMethod)[v]);
         settings.calcmethod = Object.keys(adhan.CalculationMethod)[v];
+        writeSettings();
+      }
+    },
+    'Adhan':{
+      value: settings.adhan,
+      onchange: v => {
+        settings.adhan = v;
+        eval(require('Storage').read('prayertimes.boot.js'));
         writeSettings();
       }
     }
