@@ -14,12 +14,7 @@
     let coordinates = adhan.Coordinates(settings.latitude, settings.longitude);
     let prayerTimes = new adhan.PrayerTimes(coordinates, now, adhan.CalculationMethod[settings.calcmethod]());
     let done = false;
-    for(const prayer in ["fajr","dhuhr","asr","maghrib","isha"]){
-      console.log(prayerTimes[prayer]);
-      console.log(prayerTimes[prayer].valueOf());
-      console.log(now);
-      console.log(now.valueOf());
-      console.log(prayerTimes[prayer].valueOf() - now.valueOf());
+    for(const prayer of ["fajr","dhuhr","asr","maghrib","isha"]){
       if(prayerTimes[prayer].valueOf() > now.valueOf()){
         let diff_ms = Math.abs(prayerTimes[prayer].valueOf() - now.valueOf());
         if(diff_ms > 900000){ // more than 15 minutes
@@ -27,18 +22,23 @@
           require("sched").setAlarm("prayertimer", {
             timer: diff_ms - 600000,
             js: "eval(require('Storage').read('prayertimes.boot.js'))",
+            hidden: true,
             del: true
           });
-          console.log("Call for adhan calibration in "+((diff_ms - 600000)/3600000).toFixed(2)+" hours.");
+          console.log("Next Prayer is "+prayer+". Call for adhan calibration in "+((diff_ms - 600000)/3600000).toFixed(2)+" hours.");
         } else {
           require("sched").setAlarm("prayertimer", {
             timer: diff_ms + 120000, // set the prayertimer 2 minutes after adhan to initialize the next adhan
             js: "eval(require('Storage').read('prayertimes.boot.js'))",
+            hidden: true,
             del: true
           });
           require("sched").setAlarm("prayertimer-adhan", {
             msg: "Its time to pray: " + prayer.charAt(0).toUpperCase() + prayer.slice(1),
             timer: diff_ms,
+            on: true,
+            hidden: true,
+            vibrate: "; : ;",
             del: true
           });
           console.log("Adhan in "+((diff_ms - 600000)/60000).toFixed(1)+" minutes!");
