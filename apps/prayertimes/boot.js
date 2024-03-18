@@ -13,9 +13,15 @@
     let now = new Date(Date.now());
     let coordinates = adhan.Coordinates(settings.latitude, settings.longitude);
     let prayerTimes = new adhan.PrayerTimes(coordinates, now, adhan.CalculationMethod[settings.calcmethod]());
+    let done = false;
     for(prayer in ["fajr","dhuhr","asr","maghrib","isha"]){
-      if(prayerTimes[prayer] < now){
-        let diff_ms = Math.abs(now - prayerTimes[prayer])
+      console.log(prayerTimes[prayer]);
+      console.log(prayerTimes[prayer].valueOf());
+      console.log(now);
+      console.log(now.valueOf());
+      console.log(prayerTimes[prayer].valueOf() - now.valueOf());
+      if(prayerTimes[prayer].valueOf() > now.valueOf()){
+        let diff_ms = Math.abs(prayerTimes[prayer].valueOf() - now.valueOf());
         if(diff_ms > 900000){ // more than 15 minutes
           // recall this file 10 minutes before the alarm to make time adjustments
           require("sched").setAlarm("prayertimer", {
@@ -37,8 +43,12 @@
           });
           console.log("Adhan in "+((diff_ms - 600000)/60000).toFixed(1)+" minutes!");
         }
+        done = true;
         break;
       }
+    }
+    if(!done){
+      console.log("Next Fajr ... to be implemented!");
     }
     delete adhan;
   } else {
