@@ -14,7 +14,7 @@
     let coordinates = adhan.Coordinates(settings.latitude, settings.longitude);
     let prayerTimes = new adhan.PrayerTimes(coordinates, now, adhan.CalculationMethod[settings.calcmethod]());
     let done = false;
-    for(prayer in ["fajr","dhuhr","asr","maghrib","isha"]){
+    for(const prayer in ["fajr","dhuhr","asr","maghrib","isha"]){
       console.log(prayerTimes[prayer]);
       console.log(prayerTimes[prayer].valueOf());
       console.log(now);
