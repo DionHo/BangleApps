@@ -1,3 +1,25 @@
+function setAdhanTimers(prayer, diff_ms){
+  // Set the timer to go off on prayer time
+  require("sched").setAlarm("prayertimer-adhan", {
+    msg: "Its time to pray: " + prayer.charAt(0).toUpperCase() + prayer.slice(1),
+    timer: diff_ms,
+    on: true,
+    hidden: true,
+    vibrate: "; : ;",
+    del: true
+  });
+  // Set another timer to 15min after the prayer time, loading this file to schedule the next prayer time
+  require("sched").setAlarm("prayertimer", {
+    timer: diff_ms + 900000,
+    js: "eval(require('Storage').read('prayertimes.boot.js'))",
+    on: true,
+    hidden: true,
+    del: true
+  });
+  console.log("Next Prayer is "+prayer+". Timer goes off in "+(diff_ms/3600000).toFixed(2)+" hours.");
+}
+
+
 (function() {
   let settings = Object.assign({
     latitude: parseFloat("52.2647"),
@@ -6,54 +28,43 @@
     adhan: false
   }, require('Storage').readJSON("prayertimes.settings.json", true) || {});
   console.log("prayertimes.boot.js");
+  let sched = require("sched");
+  let prayertimer_undefined = sched.getTimeToAlarm(sched.getAlarm("prayertimer")) == undefined;
   console.log(settings);
-  if(settings.adhan){
-    console.log("Setting adhan timers ...");
-    const adhan = require('adhan.espruino.js');
-    let now = new Date(Date.now());
-    let coordinates = adhan.Coordinates(settings.latitude, settings.longitude);
-    let prayerTimes = new adhan.PrayerTimes(coordinates, now, adhan.CalculationMethod[settings.calcmethod]());
-    let done = false;
-    for(const prayer of ["fajr","dhuhr","asr","maghrib","isha"]){
-      if(prayerTimes[prayer].valueOf() > now.valueOf()){
-        let diff_ms = Math.abs(prayerTimes[prayer].valueOf() - now.valueOf());
-        if(diff_ms > 900000){ // more than 15 minutes
-          // recall this file 10 minutes before the alarm to make time adjustments
-          require("sched").setAlarm("prayertimer", {
-            timer: diff_ms - 600000,
-            js: "eval(require('Storage').read('prayertimes.boot.js'))",
-            hidden: true,
-            del: true
-          });
-          console.log("Next Prayer is "+prayer+". Call for adhan calibration in "+((diff_ms - 600000)/3600000).toFixed(2)+" hours.");
-        } else {
-          require("sched").setAlarm("prayertimer", {
-            timer: diff_ms + 120000, // set the prayertimer 2 minutes after adhan to initialize the next adhan
-            js: "eval(require('Storage').read('prayertimes.boot.js'))",
-            hidden: true,
-            del: true
-          });
-          require("sched").setAlarm("prayertimer-adhan", {
-            msg: "Its time to pray: " + prayer.charAt(0).toUpperCase() + prayer.slice(1),
-            timer: diff_ms,
-            on: true,
-            hidden: true,
-            vibrate: "; : ;",
-            del: true
-          });
-          console.log("Adhan in "+((diff_ms - 600000)/60000).toFixed(1)+" minutes!");
+  if(settings.adhan) {
+    console.log("Adhan enabled.");
+    if(prayertimer_undefined){
+      console.log("Adhan enabled and timers not available ... setup timers!");
+      const adhan = require('adhan.espruino.js');
+      let now = new Date(Date.now());
+      let coordinates = adhan.Coordinates(settings.latitude, settings.longitude);
+      let prayerTimes = new adhan.PrayerTimes(coordinates, now, adhan.CalculationMethod[settings.calcmethod]());
+      let done = false;
+      for(const prayer of ["fajr","dhuhr","asr","maghrib","isha"]){
+        if(prayerTimes[prayer].valueOf() > now.valueOf()){
+          console.log("Next Prayer: "+prayer);
+          let diff_ms = Math.abs(prayerTimes[prayer].valueOf() - now.valueOf());
+          setAdhanTimers(prayer, diff_ms);
+          done = true;
+          break;
         }
-        done = true;
-        break;
       }
+      if(!done){
+        console.log("Next Prayer: Fajr ... tomorrow!");
+        prayerTimes = new adhan.PrayerTimes(coordinates, new Date(now.valueOf()+24*60*60*1000), adhan.CalculationMethod[settings.calcmethod]());
+        let diff_ms = Math.abs(prayerTimes["fajr"].valueOf() - now.valueOf());
+        setAdhanTimers("fajr", diff_ms);
+      }
+      delete prayerTimes;
+      delete adhan;
     }
-    if(!done){
-      console.log("Next Fajr ... to be implemented!");
-    }
-    delete adhan;
   } else {
-    require("sched").setAlarm("prayertimer", undefined);
-    require("sched").setAlarm("prayertimer-adhan", undefined);
-    console.log("Deactivated adhan timers.");
+    console.log("Adhan disabled.");
+    if(!prayertimer_undefined){
+      console.log("Adhan timers active ... deactivate adhan timers.");
+      sched.setAlarm("prayertimer", undefined);
+      sched.setAlarm("prayertimer-adhan", undefined);
+    }
   }
+  require("sched").reload();
 })();
