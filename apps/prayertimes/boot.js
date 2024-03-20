@@ -1,22 +1,26 @@
-function setAdhanTimers(prayer, diff_ms){
+function setAdhanTimers(prayer, datetime){
+  var timeofday_ms = (datetime.getHours()*60+datetime.getMinutes())*60000;
   // Set the timer to go off on prayer time
   require("sched").setAlarm("prayertimer-adhan", {
     msg: "Its time to pray: " + prayer.charAt(0).toUpperCase() + prayer.slice(1),
-    timer: diff_ms,
+    appid: "prayertimes",
+    t: timeofday_ms,
     on: true,
     hidden: true,
     vibrate: "; : ;",
     del: true
   });
-  // Set another timer to 15min after the prayer time, loading this file to schedule the next prayer time
+  // Set another timer to 10min after the prayer time, loading this file to schedule the next prayer time
   require("sched").setAlarm("prayertimer", {
-    timer: diff_ms + 900000,
+    msg: "Prayertimes Adhan Scheduler",
+    appid: "prayertimes",
+    t: timeofday_ms + 600000,
     js: "eval(require('Storage').read('prayertimes.boot.js'))",
     on: true,
     hidden: true,
     del: true
   });
-  console.log("Next Prayer is "+prayer+". Timer goes off in "+(diff_ms/3600000).toFixed(2)+" hours.");
+  console.log("Next Prayer is %s at %d:%d",prayer,datetime.getHours(),datetime.getMinutes());
 }
 
 
@@ -43,8 +47,7 @@ function setAdhanTimers(prayer, diff_ms){
       for(const prayer of ["fajr","dhuhr","asr","maghrib","isha"]){
         if(prayerTimes[prayer].valueOf() > now.valueOf()){
           console.log("Next Prayer: "+prayer);
-          let diff_ms = Math.abs(prayerTimes[prayer].valueOf() - now.valueOf());
-          setAdhanTimers(prayer, diff_ms);
+          setAdhanTimers(prayer, prayerTimes[prayer]);
           done = true;
           break;
         }
@@ -52,8 +55,7 @@ function setAdhanTimers(prayer, diff_ms){
       if(!done){
         console.log("Next Prayer: Fajr ... tomorrow!");
         prayerTimes = new adhan.PrayerTimes(coordinates, new Date(now.valueOf()+24*60*60*1000), adhan.CalculationMethod[settings.calcmethod]());
-        let diff_ms = Math.abs(prayerTimes["fajr"].valueOf() - now.valueOf());
-        setAdhanTimers("fajr", diff_ms);
+        setAdhanTimers("fajr", prayerTimes["fajr"]);
       }
       delete prayerTimes;
       delete adhan;
