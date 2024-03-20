@@ -29,11 +29,11 @@ function setAdhanTimers(prayer, diff_ms){
   }, require('Storage').readJSON("prayertimes.settings.json", true) || {});
   console.log("prayertimes.boot.js");
   let sched = require("sched");
-  let prayertimer_undefined = sched.getTimeToAlarm(sched.getAlarm("prayertimer")) == undefined;
+  let prayertimer_adhan_undefined = sched.getTimeToAlarm(sched.getAlarm("prayertimer-adhan")) == undefined;
   console.log(settings);
   if(settings.adhan) {
     console.log("Adhan enabled.");
-    if(prayertimer_undefined){
+    if(prayertimer_adhan_undefined){
       console.log("Adhan enabled and timers not available ... setup timers!");
       const adhan = require('adhan.espruino.js');
       let now = new Date(Date.now());
