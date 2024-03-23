@@ -7,7 +7,7 @@ function setAdhanTimers(prayer, datetime){
     t: timeofday_ms,
     on: true,
     hidden: true,
-    vibrate: "; : ;",
+    vibrate: ": = : ; :",
     del: true
   });
   // Set another timer to 10min after the prayer time, loading this file to schedule the next prayer time
@@ -34,7 +34,6 @@ function setAdhanTimers(prayer, datetime){
   console.log("prayertimes.boot.js");
   let sched = require("sched");
   let prayertimer_adhan_undefined = sched.getTimeToAlarm(sched.getAlarm("prayertimer-adhan")) == undefined;
-  console.log(settings);
   if(settings.adhan) {
     console.log("Adhan enabled.");
     if(prayertimer_adhan_undefined){
