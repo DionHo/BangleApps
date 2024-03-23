@@ -1,8 +1,8 @@
 {
   "id": "prayertimes",
   "name": "Prayer Times",
-  "version": "0.3",
-  "description": "Muslim Prayer Times on your wrist",
+  "version": "0.4",
+  "description": "Muslim Prayer Times and Adhan on your wrist",
   "icon": "app.drawio.png",
   "type": "app",
   "tags": "islam,adhan,prayer",
