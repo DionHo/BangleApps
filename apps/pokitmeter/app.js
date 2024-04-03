@@ -1,3 +1,5 @@
+const statusservice_pokitmeter   = "57d3a771-267c-4394-8872-78223e92aec4";
+const statusservice_pokitpro     = "57d3a771-267c-4394-8872-78223e92aec5";
 const mmservice_uuid             = "e7481d2f-5781-442e-bb9a-fd4e3441dadc";
 const mmservice_setmode_uuid     = "53dc9a7a-bc19-4280-b76b-002d0e23b078";
 const mmservice_measurement_uuid = "047d3559-8bee-423a-b229-4417fa603b90";
@@ -35,8 +37,37 @@ var ThemeColor = {
 
 var gatt;
 var mmservice;
+var statusservice_uuid;
 var display_mode = "measure";
 
+
+function showDeviceMenu() {
+  display_mode = "device_menu";
+  if(gatt != null){
+    gatt.disconnect();
+  }
+  menu = {
+    "": { "title": "Connect Device" },
+    "< Back": () => {
+      if(mmservice != null) {setMMMode(0).then((response) => load());}
+      else {load();}
+    },
+    "Connect Pokit Meter": () => {
+      statusservice_uuid = statusservice_pokitmeter;
+      E.showMenu();
+      E.showMessage("Scanning for Pokit ...");
+      connection_setup();
+    },
+    "Connect Pokit Pro": () => {
+      statusservice_uuid = statusservice_pokitpro;
+      E.showMenu();
+      E.showMessage("Scanning for Pokit ...");
+      connection_setup();
+    }
+  };
+  g.reset().clearRect(Bangle.appRect);
+  E.showMenu(menu);
+}
 
 function showModeMenu() {
   display_mode = "menu";
@@ -121,7 +152,7 @@ function setMMMode(mode) {
 
 function connection_setup() {
   E.showMessage("Scanning for Pokit Meter...");
-  NRF.requestDevice({ filters: [{timeout: 20000, services:["57d3a771-267c-4394-8872-78223e92aec4"]}]}).then(function(d) {
+  NRF.requestDevice({ filters: [{timeout: 20000, services:[statusservice_uuid]}]}).then(function(d) {
     device = d;
     E.showMessage("Found pokit [1/6]");
     console.log("Initialize pokit ...");
@@ -150,6 +181,7 @@ function connection_setup() {
     return c.readValue();
   }).then(function(d) {
     decodeMMAndShow(d);
+    showMesurements();
   }).then(function (){
     console.log("Done!");
   }).catch(function(e) {
@@ -162,9 +194,8 @@ function connection_setup() {
 Bangle.loadWidgets();
 Bangle.drawWidgets();
 E.showMessage(/*LANG*/"Connecting...");
-connection_setup();
+showDeviceMenu();
 
-showMesurements();
 E.on('kill',()=>{
   if (gatt!=undefined) gatt.disconnect();
   console.log("Disconnected pokit!");
