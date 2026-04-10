@@ -1,4 +1,3 @@
-var _a;
 {
     var __assign = Object.assign;
     var Layout_1 = require("Layout");
@@ -415,12 +414,12 @@ var _a;
         if (connected === void 0) { connected = NRF.getSecurityStatus().connected; }
         changeInterval(redrawInterval_1, locked ? 15000 : 5000);
         if (connected) {
-            var interval = btnsShown_1 ? 5000 : 1000;
+            var interval_1 = btnsShown_1 ? 5000 : 1000;
             if (bleInterval_1) {
-                changeInterval(bleInterval_1, interval);
+                changeInterval(bleInterval_1, interval_1);
             }
             else {
-                bleInterval_1 = setInterval(updateServices_1, interval);
+                bleInterval_1 = setInterval(updateServices_1, interval_1);
             }
         }
         else if (bleInterval_1) {
@@ -433,6 +432,7 @@ var _a;
     var bleInterval_1;
     NRF.on("connect", function () { return setIntervals_1(undefined, true); });
     NRF.on("disconnect", function () { return setIntervals_1(undefined, false); });
+    NRF.wake();
     setIntervals_1();
     setBtnsShown_1(true);
     enableSensors_1();
@@ -441,20 +441,19 @@ var _a;
         NRF.setServices(ad, {
             uart: false,
         });
-        var bangle2 = Bangle;
-        var cycle = Array.isArray(bangle2.bleAdvert) ? bangle2.bleAdvert : [];
         for (var id in ad) {
             var serv = ad[id];
             var value = void 0;
-            for (var ch in serv) {
-                value = serv[ch].value;
-                break;
+            if (id === "0x180d") {
+                value = undefined;
             }
-            cycle.push((_a = {}, _a[id] = value || [], _a));
+            else {
+                for (var ch in serv) {
+                    value = serv[ch].value;
+                    break;
+                }
+            }
+            require("ble_advert").set(id, value || []);
         }
-        bangle2.bleAdvert = cycle;
-        NRF.setAdvertising(cycle, {
-            interval: 100,
-        });
     }
 }
