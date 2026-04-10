@@ -1,4 +1,4 @@
-# Pokit Controller
+# Pokit Meter
 
 Connect to Pokit Meter multimeters and display the measurement values on your wrist! (unofficial)
 
