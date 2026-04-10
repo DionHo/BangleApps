@@ -88,15 +88,22 @@ function showModeMenu() {
   });
 }
 
+function resetContinuity() {
+  VIBRATE.write(0);
+  g.setTheme({bg: ThemeColor.bg, fg: ThemeColor.fg});
+}
+
 function showMesurements() {
   display_mode = "measure";
   Bangle.setUI({
     mode : "custom",
     back : function() {
+      resetContinuity();
       setMMMode(0).then((response) => load());
     },
     swipe : (LR,_) => {
       if (LR == 1) { // swipe right
+        resetContinuity();
         showModeMenu();
       }
     }
@@ -121,6 +128,8 @@ function decodeMMAndShow(d) {
         g.setTheme({bg:ThemeColor.bg,
                     fg:ThemeColor.fg,});
       }
+    } else {
+      resetContinuity();
     }
     
     var R = Bangle.appRect;
@@ -197,6 +206,7 @@ E.showMessage(/*LANG*/"Connecting...");
 showDeviceMenu();
 
 E.on('kill',()=>{
+  resetContinuity();
   if (gatt!=undefined) gatt.disconnect();
   console.log("Disconnected pokit!");
 });
